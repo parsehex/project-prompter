@@ -1,9 +1,17 @@
 import {app, BrowserWindow} from 'electron';
 import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {getWindowState, saveWindowState} from './windowState';
 
 async function createWindow() {
+  const savedWindowState = getWindowState();
+
   const browserWindow = new BrowserWindow({
+    width: savedWindowState?.width || 800,
+    height: savedWindowState?.height || 600,
+    x: savedWindowState?.x,
+    y: savedWindowState?.y,
+
     show: false, // Use the 'ready-to-show' event to show the instantiated BrowserWindow.
     webPreferences: {
       nodeIntegration: false,
@@ -13,6 +21,10 @@ async function createWindow() {
       preload: join(app.getAppPath(), 'packages/preload/dist/index.mjs'),
     },
   });
+
+  if (savedWindowState?.maximized) {
+    browserWindow.maximize();
+  }
 
   /**
    * If the 'show' property of the BrowserWindow's constructor is omitted from the initialization options,
@@ -28,6 +40,10 @@ async function createWindow() {
     if (import.meta.env.DEV) {
       browserWindow?.webContents.openDevTools();
     }
+  });
+
+  browserWindow.on('close', () => {
+    saveWindowState(browserWindow);
   });
 
   /**
