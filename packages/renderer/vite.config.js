@@ -3,7 +3,9 @@
 import {chrome} from '../../.electron-vendors.cache.json';
 import vue from '@vitejs/plugin-vue';
 import {renderer} from 'unplugin-auto-expose';
-import {join} from 'node:path';
+import {join, resolve} from 'node:path';
+import tailwind from 'tailwindcss';
+import autoprefixer from 'autoprefixer';
 
 const PACKAGE_ROOT = __dirname;
 const PROJECT_ROOT = join(PACKAGE_ROOT, '../..');
@@ -13,12 +15,19 @@ const PROJECT_ROOT = join(PACKAGE_ROOT, '../..');
  * @see https://vitejs.dev/config/
  */
 const config = {
+  css: {
+    postcss: {
+      plugins: [tailwind(), autoprefixer()],
+    },
+  },
+
   mode: process.env.MODE,
   root: PACKAGE_ROOT,
   envDir: PROJECT_ROOT,
   resolve: {
     alias: {
       '/@/': join(PACKAGE_ROOT, 'src') + '/',
+      '@': resolve(PACKAGE_ROOT, 'src') + '/',
     },
   },
   base: '',
